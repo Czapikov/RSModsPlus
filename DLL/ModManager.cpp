@@ -4,6 +4,16 @@
 #include "Audio/SongShift/WwiseMusicHook.hpp"
 
 namespace ModManager {
+	/// <summary>
+	/// Installs hooks whose target can be initialized before the normal mod startup path.
+	/// Runs on MainThread, outside DllMain's loader lock, immediately after that thread
+	/// starts. Settings::ReadModSettings has already populated the runtime maps.
+	/// </summary>
+	void InstallEarlyHooks() {
+		DropPedal::LoadSettings();
+		DropPedal::InstallInputHooks();
+	}
+
 	void InitializeConfiguration() {
 		if (!(std::ifstream("RSMods.ini"))) {
 			std::ofstream RSModsFileOutput("RSMods.ini");
@@ -131,10 +141,6 @@ namespace ModManager {
 		{
 			Audio::SongShift::WwiseMusicHook::Install();
 		}
-
-		// Runs before the game instantiates its ASIO driver, so the detour is in place
-		// when RS_ASIO loads the same module.
-		DropPedal::InstallInputHooks();
 
 		AudioDevices::SetupMicrophones();
 		ApplyBugPrevention();
@@ -765,3 +771,4 @@ namespace ModManager {
 		}
 	}
 }
+

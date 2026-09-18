@@ -227,6 +227,12 @@ unsigned WINAPI MainThread() {
 
 	GameLoopState loopState = {};
 
+	// RS_ASIO can instantiate its ASIO driver within the first few hundred
+	// milliseconds of process startup. Install the input hook before any of the
+	// normal mod initialization (which may wait for D3D or sleep while loading
+	// settings), otherwise DllGetClassObject/CreateInstance have already passed.
+	ModManager::InstallEarlyHooks();
+
 	Keybindings::InitializeCommands();
 	ModManager::InitializeConfiguration();
 	ModManager::InitializeMods(debug);
@@ -325,3 +331,4 @@ BOOL APIENTRY DllMain(HMODULE hModule, uint32_t dwReason, LPVOID lpReserved) {
 	
 	return TRUE;
 }
+
